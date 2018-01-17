@@ -154,7 +154,9 @@ class PiiPseudonymizerEnrichmentSpec extends Specification with ValidationMatche
                     fieldMutator = ScalarMutators.get("ip_domain").get),
           PiiScalar(strategy     = PiiStrategyPseudonymize(hashFunction = MessageDigest.getInstance("SHA-256")),
                     fieldMutator = ScalarMutators.get("user_fingerprint").get)
-        )))
+        ),
+        false
+      ))
     )
     val output   = commonSetup(enrichmentMap = enrichmentMap)
     val expected = new EnrichedEvent()
@@ -205,7 +207,9 @@ class PiiPseudonymizerEnrichmentSpec extends Specification with ValidationMatche
             schemaCriterion = SchemaCriterion.parse("iglu:com.mailgun/message_clicked/jsonschema/1-0-0").toOption.get,
             jsonPath        = "$.ip"
           )
-        )))
+        ),
+        false
+      ))
     )
 
     val output   = commonSetup(enrichmentMap = enrichmentMap)
@@ -255,7 +259,9 @@ class PiiPseudonymizerEnrichmentSpec extends Specification with ValidationMatche
             schemaCriterion = SchemaCriterion.parse("iglu:com.acme/email_sent/jsonschema/1-*-*").toOption.get,
             jsonPath        = "$.field.that.does.not.exist.in.this.instance"
           )
-        )))
+        ),
+        false
+      ))
     )
 
     val output   = commonSetup(enrichmentMap = enrichmentMap)
@@ -293,7 +299,9 @@ class PiiPseudonymizerEnrichmentSpec extends Specification with ValidationMatche
             schemaCriterion = SchemaCriterion.parse("iglu:com.acme/email_sent/jsonschema/1-0-*").toOption.get,
             jsonPath        = "$.['emailAddress', 'emailAddress2']"
           )
-        )))
+        ),
+        false
+      ))
     )
 
     val output   = commonSetup(enrichmentMap = enrichmentMap)
@@ -333,7 +341,9 @@ class PiiPseudonymizerEnrichmentSpec extends Specification with ValidationMatche
             schemaCriterion = SchemaCriterion.parse("iglu:com.acme/email_sent/jsonschema/1-*-0").toOption.get,
             jsonPath        = "$.emailAddress"
           )
-        )))
+        ),
+        false
+      ))
     )
     val output   = commonSetup(enrichmentMap = enrichmentMap)
     val expected = new EnrichedEvent()
@@ -373,7 +383,9 @@ class PiiPseudonymizerEnrichmentSpec extends Specification with ValidationMatche
             schemaCriterion = SchemaCriterion.parse("iglu:com.acme/email_sent/jsonschema/1-*-*").toOption.get,
             jsonPath        = "$.someInt"
           )
-        )))
+        ),
+        false
+      ))
     )
     val output   = commonSetup(enrichmentMap = enrichmentMap)
     val expected = new EnrichedEvent()

@@ -177,17 +177,18 @@ object PiiPseudonymizerEnrichment extends ParseableEnrichment {
   implicit val json4sFormats = DefaultFormats
 
   override val supportedSchema =
-    SchemaCriterion("com.snowplowanalytics.snowplow.enrichments", "pii_enrichment_config", "jsonschema", 1, 0, 0)
+    SchemaCriterion("com.snowplowanalytics.snowplow.enrichments", "pii_enrichment_config", "jsonschema", 2, 0, 0)
 
   def parse(config: JValue, schemaKey: SchemaKey): ValidatedNelMessage[PiiPseudonymizerEnrichment] = {
     for {
       conf <- matchesSchema(config, schemaKey)
-      enabled = ScalazJson4sUtils.extract[Boolean](conf, "enabled").toOption.getOrElse(false)
+      enabled                 = ScalazJson4sUtils.extract[Boolean](conf, "enabled").toOption.getOrElse(false)
+      emitIdentificationEvent = ScalazJson4sUtils.extract[Boolean](conf, "emitIdentificationEvent").toOption.getOrElse(false)
       piiFields        <- ScalazJson4sUtils.extract[List[JObject]](conf, "parameters", "pii").leftMap(_.getMessage)
       strategyFunction <- extractStrategyFunction(config)
       hashFunction     <- getHashFunction(strategyFunction)
       piiFieldList     <- extractFields(piiFields, PiiStrategyPseudonymize(hashFunction))
-    } yield if (enabled) PiiPseudonymizerEnrichment(piiFieldList) else PiiPseudonymizerEnrichment(List())
+    } yield if (enabled) PiiPseudonymizerEnrichment(piiFieldList, emitIdentificationEvent) else PiiPseudonymizerEnrichment(List(), false)
   }.leftMap(_.toProcessingMessageNel)
 
   private def getHashFunction(strategyFunction: String): Validation[String, MessageDigest] =
@@ -256,8 +257,9 @@ object PiiPseudonymizerEnrichment extends ParseableEnrichment {
  * unstruct_event or an array in the case of derived_events and contexts
  *
  * @param fieldList a list of configured PiiFields
+ * @param emitIdentificationEvent whether to emit an identification event
  */
-case class PiiPseudonymizerEnrichment(fieldList: List[PiiField]) extends Enrichment {
+case class PiiPseudonymizerEnrichment(fieldList: List[PiiField], emitIdentificationEvent: Boolean) extends Enrichment {
   def transformer(event: EnrichedEvent): Unit = fieldList.foreach(_.transform(event))
 }
 
