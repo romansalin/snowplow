@@ -51,8 +51,9 @@ import common.utils.ScalazJson4sUtils
 import common.outputs.EnrichedEvent
 
 object PiiConstants {
-  type ModifiedFields = List[ModifedField]
-  type Mutator = (EnrichedEvent, String => String) => ModifiedFields
+//  type ModifiedFields = List[ModifedField]
+//  type Mutator = (EnrichedEvent, (String, PiiStrategy) => String) => ModifiedFields
+  type Mutator = (EnrichedEvent, PiiStrategy, (String, PiiStrategy) => String) => Unit
 
   /**
    * This and the next constant maps from a config field name to an EnrichedEvent mutator. The structure is such so that
@@ -60,107 +61,71 @@ object PiiConstants {
    * input.
    */
   val ScalarMutators: Map[String, Mutator] = Map(
-    "user_id" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.user_id
-      event.user_id = fn(event.user_id)
-      List(ScalarModifiedField("user_id", originalValue, event.user_id))
+    "user_id" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.user_id = fn(event.user_id, strategy)
     },
-    "user_ipaddress" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.user_ipaddress
-      event.user_ipaddress = fn(event.user_ipaddress)
-      List(ScalarModifiedField("user_ipaddress", originalValue, event.user_ipaddress))
+    "user_ipaddress" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.user_ipaddress = fn(event.user_ipaddress, strategy)
     },
-    "user_fingerprint" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.user_fingerprint
-      event.user_fingerprint = fn(event.user_fingerprint)
-      List(ScalarModifiedField("user_fingerprint", originalValue, event.user_fingerprint))
+    "user_fingerprint" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.user_fingerprint = fn(event.user_fingerprint, strategy)
     },
-    "domain_userid" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.domain_userid
-      event.domain_userid = fn(event.domain_userid)
-      List(ScalarModifiedField("domain_userid", originalValue, event.domain_userid))
+    "domain_userid" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.domain_userid = fn(event.domain_userid, strategy)
     },
-    "network_userid" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.network_userid
-      event.network_userid = fn(event.network_userid)
-      List(ScalarModifiedField("network_userid", originalValue, event.network_userid))
+    "network_userid" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.network_userid = fn(event.network_userid, strategy)
     },
-    "ip_organization" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.ip_organization
-      event.ip_organization = fn(event.ip_organization)
-      List(ScalarModifiedField("ip_organization", originalValue, event.ip_organization))
+    "ip_organization" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.ip_organization = fn(event.ip_organization, strategy)
     },
-    "ip_domain" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.ip_domain
-      event.ip_domain = fn(event.ip_domain)
-      List(ScalarModifiedField("ip_domain", originalValue, event.ip_domain))
+    "ip_domain" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.ip_domain = fn(event.ip_domain, strategy)
     },
-    "tr_orderid" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.tr_orderid
-      event.tr_orderid = fn(event.tr_orderid)
-      List(ScalarModifiedField("tr_orderid", originalValue, event.tr_orderid))
+    "tr_orderid" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.tr_orderid = fn(event.tr_orderid, strategy)
     },
-    "ti_orderid" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.ti_orderid
-      event.ti_orderid = fn(event.ti_orderid)
-      List(ScalarModifiedField("ti_orderid", originalValue, event.ti_orderid))
+    "ti_orderid" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.ti_orderid = fn(event.ti_orderid, strategy)
     },
-    "mkt_term" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.mkt_term
-      event.mkt_term = fn(event.mkt_term)
-      List(ScalarModifiedField("mkt_term", originalValue, event.mkt_term))
+    "mkt_term" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.mkt_term = fn(event.mkt_term, strategy)
     },
-    "mkt_content" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.mkt_content
-      event.mkt_content = fn(event.mkt_content)
-      List(ScalarModifiedField("mkt_content", originalValue, event.mkt_content))
+    "mkt_content" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.mkt_content = fn(event.mkt_content, strategy)
     },
-    "se_category" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.se_category
-      event.se_category = fn(event.se_category)
-      List(ScalarModifiedField("se_category", originalValue, event.se_category))
+    "se_category" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.se_category = fn(event.se_category, strategy)
     },
-    "se_action" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.se_action
-      event.se_action = fn(event.se_action)
-      List(ScalarModifiedField("se_action", originalValue, event.se_action))
+    "se_action" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.se_action = fn(event.se_action, strategy)
     },
-    "se_label" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.se_label
-      event.se_label = fn(event.se_label)
-      List(ScalarModifiedField("se_label", originalValue, event.se_label))
+    "se_label" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.se_label = fn(event.se_label, strategy)
     },
-    "se_property" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.se_property
-      event.se_property = fn(event.se_property)
-      List(ScalarModifiedField("se_property", originalValue, event.se_property))
+    "se_property" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.se_property = fn(event.se_property, strategy)
     },
-    "mkt_clickid" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.mkt_clickid
-      event.mkt_clickid = fn(event.mkt_clickid)
-      List(ScalarModifiedField("mkt_clickid", originalValue, event.mkt_clickid))
+    "mkt_clickid" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.mkt_clickid = fn(event.mkt_clickid, strategy)
     },
-    "refr_domain_userid" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.refr_domain_userid
-      event.refr_domain_userid = fn(event.refr_domain_userid)
-      List(ScalarModifiedField("refr_domain_userid", originalValue, event.refr_domain_userid))
+    "refr_domain_userid" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.refr_domain_userid = fn(event.refr_domain_userid, strategy)
     },
-    "domain_sessionid" -> { (event: EnrichedEvent, fn: String => String) =>
-      val originalValue = event.domain_sessionid
-      event.domain_sessionid = fn(event.domain_sessionid)
-      List(ScalarModifiedField("domain_sessionid", originalValue, event.domain_sessionid))
+    "domain_sessionid" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.domain_sessionid = fn(event.domain_sessionid, strategy)
     }
   )
 
   val JsonMutators: Map[String, Mutator] = Map(
-    "contexts" -> { (event: EnrichedEvent, fn: String => String) =>
-      event.contexts = fn(event.contexts)
+    "contexts" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.contexts = fn(event.contexts, strategy)
     },
-    "derived_contexts" -> { (event: EnrichedEvent, fn: String => String) =>
-      event.derived_contexts = fn(event.derived_contexts)
+    "derived_contexts" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.derived_contexts = fn(event.derived_contexts, strategy)
     },
-    "unstruct_event" -> { (event: EnrichedEvent, fn: String => String) =>
-      event.unstruct_event = fn(event.unstruct_event)
+    "unstruct_event" -> { (event: EnrichedEvent, strategy: PiiStrategy, fn: (String, PiiStrategy) => String) =>
+      event.unstruct_event = fn(event.unstruct_event, strategy)
     }
   )
 }
@@ -171,13 +136,6 @@ object PiiConstants {
  */
 sealed trait PiiField {
   import PiiConstants.Mutator
-
-  /**
-   * Strategy for this field
-   *
-   * @return PiiStrategy a strategy to be applied to this field
-   */
-  def strategy: PiiStrategy
 
   /**
    * The POJO mutator for this field
@@ -191,9 +149,9 @@ sealed trait PiiField {
    *
    * @param event The enriched event
    */
-  def transform(event: EnrichedEvent): Unit = fieldMutator(event, applyStrategy)
+  def transform(event: EnrichedEvent, strategy: PiiStrategy): Unit = fieldMutator(event, strategy, applyStrategy)
 
-  protected def applyStrategy(fieldValue: String): String
+  protected def applyStrategy(fieldValue: String, strategy: PiiStrategy): String
 }
 
 /**
@@ -224,8 +182,10 @@ object PiiPseudonymizerEnrichment extends ParseableEnrichment {
       piiFields        <- ScalazJson4sUtils.extract[List[JObject]](conf, "parameters", "pii").leftMap(_.getMessage)
       strategyFunction <- extractStrategyFunction(config)
       hashFunction     <- getHashFunction(strategyFunction)
-      piiFieldList     <- extractFields(piiFields, PiiStrategyPseudonymize(hashFunction))
-    } yield if (enabled) PiiPseudonymizerEnrichment(piiFieldList, emitIdentificationEvent) else PiiPseudonymizerEnrichment(List(), false)
+      piiFieldList     <- extractFields(piiFields)
+    } yield
+      if (enabled) PiiPseudonymizerEnrichment(piiFieldList, emitIdentificationEvent, PiiStrategyPseudonymize(hashFunction))
+      else PiiPseudonymizerEnrichment(List(),               false,                   PiiStrategyPseudonymize(hashFunction))
   }.leftMap(_.toProcessingMessageNel)
 
   private def getHashFunction(strategyFunction: String): Validation[String, MessageDigest] =
@@ -236,23 +196,23 @@ object PiiPseudonymizerEnrichment extends ParseableEnrichment {
         s"Could not parse PII enrichment config: ${e.getMessage}".failure
     }
 
-  private def extractFields(piiFields: List[JObject], strategy: PiiStrategy): Validation[String, List[PiiField]] =
+  private def extractFields(piiFields: List[JObject]): Validation[String, List[PiiField]] =
     piiFields.map {
       case field: JObject =>
         if (ScalazJson4sUtils.fieldExists(field, "pojo"))
-          extractString(field, "pojo", "field").flatMap(extractPiiScalarField(strategy, _))
-        else if (ScalazJson4sUtils.fieldExists(field, "json")) extractPiiJsonField(strategy, field \ "json")
+          extractString(field, "pojo", "field").flatMap(extractPiiScalarField(_))
+        else if (ScalazJson4sUtils.fieldExists(field, "json")) extractPiiJsonField(field \ "json")
         else s"PII Configuration: pii field does not include 'pojo' nor 'json' fields. Got: [${compact(field)}]".failure
       case json => s"PII Configuration: pii field does not contain an object. Got: [${compact(json)}]".failure
     }.sequenceU
 
-  private def extractPiiScalarField(strategy: PiiStrategy, fieldName: String): Validation[String, PiiScalar] =
+  private def extractPiiScalarField(fieldName: String): Validation[String, PiiScalar] =
     ScalarMutators
       .get(fieldName)
-      .map(PiiScalar(strategy, _).success)
+      .map(PiiScalar(_).success)
       .getOrElse(s"The specified pojo field ${fieldName} is not supported".failure)
 
-  private def extractPiiJsonField(strategy: PiiStrategy, jsonField: JValue): Validation[String, PiiJson] =
+  private def extractPiiJsonField(jsonField: JValue): Validation[String, PiiJson] =
     (extractString(jsonField, "field")
       .flatMap(
         fieldName =>
@@ -262,7 +222,7 @@ object PiiPseudonymizerEnrichment extends ParseableEnrichment {
             .getOrElse(s"The specified json field ${compact(jsonField)} is not supported".failure)) |@|
       extractString(jsonField, "schemaCriterion").flatMap(sc => SchemaCriterion.parse(sc).leftMap(_.getMessage)) |@|
       extractString(jsonField, "jsonPath")) { (fieldMutator: Mutator, sc: SchemaCriterion, jsonPath: String) =>
-      PiiJson(strategy, fieldMutator, sc, jsonPath)
+      PiiJson(fieldMutator, sc, jsonPath)
     }
 
   private def extractString(jValue: JValue, field: String, tail: String*): Validation[String, String] =
@@ -295,18 +255,20 @@ object PiiPseudonymizerEnrichment extends ParseableEnrichment {
  *
  * @param fieldList a list of configured PiiFields
  * @param emitIdentificationEvent whether to emit an identification event
+ * @param strategy the pseudonymization strategy to use
  */
-case class PiiPseudonymizerEnrichment(fieldList: List[PiiField], emitIdentificationEvent: Boolean) extends Enrichment {
-  def transformer(event: EnrichedEvent): Unit = fieldList.foreach(_.transform(event))
+case class PiiPseudonymizerEnrichment(fieldList: List[PiiField], emitIdentificationEvent: Boolean, strategy: PiiStrategy)
+    extends Enrichment {
+  def transformer(event: EnrichedEvent): Unit = fieldList.foreach(_.transform(event, strategy))
 }
 
 /**
  * Specifies a scalar field in POJO and the strategy that should be applied to it.
- * @param strategy the strategy that should be applied
  * @param fieldMutator the field mutator where the strategy will be applied
  */
-final case class PiiScalar(strategy: PiiStrategy, fieldMutator: PiiConstants.Mutator) extends PiiField {
-  override def applyStrategy(fieldValue: String): String = if (fieldValue != null) strategy.scramble(fieldValue) else null
+final case class PiiScalar(fieldMutator: PiiConstants.Mutator) extends PiiField {
+  override def applyStrategy(fieldValue: String, strategy: PiiStrategy): String =
+    if (fieldValue != null) strategy.scramble(fieldValue) else null
 }
 
 /**
@@ -314,16 +276,14 @@ final case class PiiScalar(strategy: PiiStrategy, fieldMutator: PiiConstants.Mut
  * discriminate which contexts to apply this strategy to, and a json path within the contexts where this strategy will
  * be applied (the path may correspond to multiple fields).
  *
- * @param strategy the strategy that should be applied
  * @param fieldMutator the field mutator for the json field
  * @param schemaCriterion the schema for which the strategy will be applied
  * @param jsonPath the path where the strategy will be applied
  */
-final case class PiiJson(strategy: PiiStrategy, fieldMutator: PiiConstants.Mutator, schemaCriterion: SchemaCriterion, jsonPath: String)
-    extends PiiField {
+final case class PiiJson(fieldMutator: PiiConstants.Mutator, schemaCriterion: SchemaCriterion, jsonPath: String) extends PiiField {
   implicit val json4sFormats = DefaultFormats
 
-  override def applyStrategy(fieldValue: String): String =
+  override def applyStrategy(fieldValue: String, strategy: PiiStrategy): String =
     if (fieldValue != null) {
       compact(render(parse(fieldValue) match {
         case JObject(jObject) => {
@@ -331,10 +291,10 @@ final case class PiiJson(strategy: PiiStrategy, fieldMutator: PiiConstants.Mutat
           val updated = jObjectMap.filterKeys(_ == "data").mapValues {
             case JArray(contexts) =>
               JArray(contexts.map {
-                case JObject(context) => modifyObjectIfSchemaMatches(context)
+                case JObject(context) => modifyObjectIfSchemaMatches(context, strategy)
                 case x                => x
               })
-            case JObject(unstructEvent) => modifyObjectIfSchemaMatches(unstructEvent)
+            case JObject(unstructEvent) => modifyObjectIfSchemaMatches(unstructEvent, strategy)
             case x                      => x
           }
           JObject((jObjectMap ++ updated).toList)
@@ -343,14 +303,15 @@ final case class PiiJson(strategy: PiiStrategy, fieldMutator: PiiConstants.Mutat
       }))
     } else null
 
-  private def modifyObjectIfSchemaMatches(context: List[(String, json4s.JValue)]): JObject = {
+  private def modifyObjectIfSchemaMatches(context: List[(String, json4s.JValue)], strategy: PiiStrategy): JObject = {
     val fieldsObj = context.toMap
     (for {
       schema              <- fieldsObj.get("schema")
       parsedSchemaMatches <- SchemaKey.parse(schema.extract[String]).map(schemaCriterion.matches).toOption
       data                <- fieldsObj.get("data")
       if parsedSchemaMatches
-    } yield JObject(fieldsObj.updated("schema", schema).updated("data", jsonPathReplace(data)).toList)).getOrElse(JObject(context))
+    } yield
+      JObject(fieldsObj.updated("schema", schema).updated("data", jsonPathReplace(data, strategy)).toList)).getOrElse(JObject(context))
   }
 
   // Configuration for JsonPath
@@ -360,7 +321,7 @@ final case class PiiJson(strategy: PiiStrategy, fieldMutator: PiiConstants.Mutat
   /**
    * Replaces a value in the given context data with the result of applying the strategy that value.
    */
-  private def jsonPathReplace(jValue: JValue): JValue = {
+  private def jsonPathReplace(jValue: JValue, strategy: PiiStrategy): JValue = {
     val objectNode      = JsonMethods.mapper.valueToTree[ObjectNode](jValue)
     val documentContext = JJsonPath.using(JsonPathConf).parse(objectNode)
     documentContext.map(
@@ -394,8 +355,7 @@ case class PiiStrategyPseudonymize(hashFunction: MessageDigest) extends PiiStrat
 /**
  * The modified field trait represents an item that is transformed in either the JSON or a scalar mutators.
  */
-
 sealed trait ModifedField
 
-case class ScalarModifiedField(val fieldName: String, val originalValue: String, val modifiedValue: String) extends ModifedField
-case class JsonModifiedField(val field: String, val originalValue: String, val modifiedValue: String, val jsonPath: String) extends ModifedField
+case class ScalarModifiedField(fieldName: String, originalValue: String, modifiedValue: String) extends ModifedField
+case class JsonModifiedField(field: String,       originalValue: String, modifiedValue: String, jsonPath: String) extends ModifedField

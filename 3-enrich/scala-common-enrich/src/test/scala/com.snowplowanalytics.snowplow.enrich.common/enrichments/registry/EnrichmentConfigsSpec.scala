@@ -323,19 +323,15 @@ class EnrichmentConfigsSpec extends Specification with ValidationMatchers {
       val result = PiiPseudonymizerEnrichment.parse(piiPseudonymizerEnrichmentJson, schemaKey)
       result must beSuccessful.like {
         case piiRes: PiiPseudonymizerEnrichment => {
-          (piiRes.fieldList.size must_== 2) and
+          ((piiRes.strategy must haveClass[PiiStrategyPseudonymize]) and
+            (piiRes.strategy.asInstanceOf[PiiStrategyPseudonymize].hashFunction.toString must contain("SHA-256")) and
+            (piiRes.fieldList.size must_== 2) and
             (piiRes.fieldList(0) must haveClass[PiiScalar]) and
-            (piiRes.fieldList(0).asInstanceOf[PiiScalar].strategy must haveClass[PiiStrategyPseudonymize]) and
-            (piiRes.fieldList(0).asInstanceOf[PiiScalar].strategy.asInstanceOf[PiiStrategyPseudonymize].hashFunction.toString must contain(
-              "SHA-256")) and
             (piiRes.fieldList(0).asInstanceOf[PiiScalar].fieldMutator must_== ScalarMutators.get("user_id").get) and
-            (piiRes.fieldList(1).asInstanceOf[PiiJson].strategy must haveClass[PiiStrategyPseudonymize]) and
             (piiRes.fieldList(1).asInstanceOf[PiiJson].fieldMutator must_== JsonMutators.get("contexts").get) and
             (piiRes.fieldList(1).asInstanceOf[PiiJson].schemaCriterion.toString must_== "iglu:com.acme/email_sent/jsonschema/1-*-*") and
             (piiRes.fieldList(1).asInstanceOf[PiiJson].jsonPath must_== "$.emailAddress") and
-            (piiRes.fieldList(1).asInstanceOf[PiiJson].strategy.asInstanceOf[PiiStrategyPseudonymize].hashFunction.toString must contain(
-              "SHA-256") and
-              (piiRes.emitIdentificationEvent mustEqual (true)))
+            (piiRes.emitIdentificationEvent mustEqual (true)))
         }
       }
     }
