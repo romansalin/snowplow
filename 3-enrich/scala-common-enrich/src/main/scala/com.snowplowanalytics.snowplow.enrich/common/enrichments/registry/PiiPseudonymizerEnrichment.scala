@@ -51,7 +51,8 @@ import common.utils.ScalazJson4sUtils
 import common.outputs.EnrichedEvent
 
 object PiiConstants {
-  type Mutator = (EnrichedEvent, String => String) => Unit
+  type ModifiedFields = List[ModifedField]
+  type Mutator = (EnrichedEvent, String => String) => ModifiedFields
 
   /**
    * This and the next constant maps from a config field name to an EnrichedEvent mutator. The structure is such so that
@@ -60,58 +61,94 @@ object PiiConstants {
    */
   val ScalarMutators: Map[String, Mutator] = Map(
     "user_id" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.user_id
       event.user_id = fn(event.user_id)
+      List(ScalarModifiedField("user_id", originalValue, event.user_id))
     },
     "user_ipaddress" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.user_ipaddress
       event.user_ipaddress = fn(event.user_ipaddress)
+      List(ScalarModifiedField("user_ipaddress", originalValue, event.user_ipaddress))
     },
     "user_fingerprint" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.user_fingerprint
       event.user_fingerprint = fn(event.user_fingerprint)
+      List(ScalarModifiedField("user_fingerprint", originalValue, event.user_fingerprint))
     },
     "domain_userid" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.domain_userid
       event.domain_userid = fn(event.domain_userid)
+      List(ScalarModifiedField("domain_userid", originalValue, event.domain_userid))
     },
     "network_userid" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.network_userid
       event.network_userid = fn(event.network_userid)
+      List(ScalarModifiedField("network_userid", originalValue, event.network_userid))
     },
     "ip_organization" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.ip_organization
       event.ip_organization = fn(event.ip_organization)
+      List(ScalarModifiedField("ip_organization", originalValue, event.ip_organization))
     },
     "ip_domain" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.ip_domain
       event.ip_domain = fn(event.ip_domain)
+      List(ScalarModifiedField("ip_domain", originalValue, event.ip_domain))
     },
     "tr_orderid" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.tr_orderid
       event.tr_orderid = fn(event.tr_orderid)
+      List(ScalarModifiedField("tr_orderid", originalValue, event.tr_orderid))
     },
     "ti_orderid" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.ti_orderid
       event.ti_orderid = fn(event.ti_orderid)
+      List(ScalarModifiedField("ti_orderid", originalValue, event.ti_orderid))
     },
     "mkt_term" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.mkt_term
       event.mkt_term = fn(event.mkt_term)
+      List(ScalarModifiedField("mkt_term", originalValue, event.mkt_term))
     },
     "mkt_content" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.mkt_content
       event.mkt_content = fn(event.mkt_content)
+      List(ScalarModifiedField("mkt_content", originalValue, event.mkt_content))
     },
     "se_category" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.se_category
       event.se_category = fn(event.se_category)
+      List(ScalarModifiedField("se_category", originalValue, event.se_category))
     },
     "se_action" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.se_action
       event.se_action = fn(event.se_action)
+      List(ScalarModifiedField("se_action", originalValue, event.se_action))
     },
     "se_label" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.se_label
       event.se_label = fn(event.se_label)
+      List(ScalarModifiedField("se_label", originalValue, event.se_label))
     },
     "se_property" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.se_property
       event.se_property = fn(event.se_property)
+      List(ScalarModifiedField("se_property", originalValue, event.se_property))
     },
     "mkt_clickid" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.mkt_clickid
       event.mkt_clickid = fn(event.mkt_clickid)
+      List(ScalarModifiedField("mkt_clickid", originalValue, event.mkt_clickid))
     },
     "refr_domain_userid" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.refr_domain_userid
       event.refr_domain_userid = fn(event.refr_domain_userid)
+      List(ScalarModifiedField("refr_domain_userid", originalValue, event.refr_domain_userid))
     },
     "domain_sessionid" -> { (event: EnrichedEvent, fn: String => String) =>
+      val originalValue = event.domain_sessionid
       event.domain_sessionid = fn(event.domain_sessionid)
+      List(ScalarModifiedField("domain_sessionid", originalValue, event.domain_sessionid))
     }
   )
 
@@ -353,3 +390,12 @@ case class PiiStrategyPseudonymize(hashFunction: MessageDigest) extends PiiStrat
   override def scramble(clearText: String): String = hash(clearText)
   def hash(text: String): String                   = String.format("%064x", new java.math.BigInteger(1, hashFunction.digest(text.getBytes(TextEncoding))))
 }
+
+/**
+ * The modified field trait represents an item that is transformed in either the JSON or a scalar mutators.
+ */
+
+sealed trait ModifedField
+
+case class ScalarModifiedField(val fieldName: String, val originalValue: String, val modifiedValue: String) extends ModifedField
+case class JsonModifiedField(val field: String, val originalValue: String, val modifiedValue: String, val jsonPath: String) extends ModifedField
